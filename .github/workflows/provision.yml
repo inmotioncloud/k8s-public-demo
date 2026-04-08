@@ -40,6 +40,8 @@ jobs:
       TF_VAR_cluster_template_name: ${{ vars.CLUSTER_TEMPLATE_NAME != '' && vars.CLUSTER_TEMPLATE_NAME || 'kubernetes-v1.26.8-rancher1' }}
       # Set repository Variable CLUSTER_AUTOSCALING_ENABLED to false to disable autoscaler labels (fixed worker count).
       TF_VAR_cluster_autoscaling_enabled: ${{ vars.CLUSTER_AUTOSCALING_ENABLED || 'true' }}
+      # Must match GitHub Variable CLUSTER_NAME (used by Site - Deploy, etc.); default vpc-demo-cluster if unset.
+      TF_VAR_cluster_name: ${{ vars.CLUSTER_NAME != '' && vars.CLUSTER_NAME || 'vpc-demo-cluster' }}
       # If LoadBalancer EXTERNAL-IP stays pending (Octavia / cloud-controller), set to NodePort for a working demo (see README).
       TRAEFIK_SERVICE_TYPE: ${{ vars.TRAEFIK_SERVICE_TYPE }}
       # Required for Traefik ACME / Let's Encrypt (set in repository Variables).

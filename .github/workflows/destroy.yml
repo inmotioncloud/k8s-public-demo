@@ -46,6 +46,7 @@ jobs:
       TF_VAR_network_name_suffix: ${{ vars.NETWORK_NAME_SUFFIX }}
       TF_VAR_cluster_template_name: ${{ vars.CLUSTER_TEMPLATE_NAME != '' && vars.CLUSTER_TEMPLATE_NAME || 'kubernetes-v1.26.8-rancher1' }}
       TF_VAR_cluster_autoscaling_enabled: ${{ vars.CLUSTER_AUTOSCALING_ENABLED || 'true' }}
+      TF_VAR_cluster_name: ${{ vars.CLUSTER_NAME != '' && vars.CLUSTER_NAME || 'vpc-demo-cluster' }}
       TF_STATE_S3_BUCKET: ${{ vars.TF_STATE_S3_BUCKET }}
       TF_STATE_S3_KEY: ${{ vars.TF_STATE_S3_KEY }}
       TF_STATE_S3_ENDPOINT: ${{ vars.TF_STATE_S3_ENDPOINT }}

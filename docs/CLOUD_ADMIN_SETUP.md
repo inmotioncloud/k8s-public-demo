@@ -100,8 +100,7 @@ Point them to **`terraform/backend.swift-s3.hcl.example`** for local testing.
 ## 7. DNS (customer-controlled)
 
 1. Agree on a DNS **apex** for the demo, e.g. **`k8sdemo.customer.example`**. The customer sets **`DEMO_DOMAIN_BASE`** to that apex (no leading `*.`).
-2. Explain that site hostnames are **`{site_id}.{app_type}.{DEMO_DOMAIN_BASE}`** (e.g. **`wp1.wordpress.k8sdemo.customer.example`**). A single wildcard **`*.{apex}`** is **not** enough; they need at least:
-   - **`*.{wordpress,drupal}.{apex}`** (or separate records per site).
+2. Explain that site hostnames are **`{site_id}.{app_type}.{DEMO_DOMAIN_BASE}`** (e.g. **`wp1.wordpress.k8sdemo.customer.example`**, **`dp1.drupal.k8sdemo.customer.example`**). A **single** wildcard **`*.{apex}`** pointed at the Traefik VIP (e.g. **`*.k8sdemo.customer.example`**) is enough: it covers all subdomains of **`DEMO_DOMAIN_BASE`**, including multi-label hostnames like `wp1.wordpress.…` as long as they remain under that zone.
 
 After **Cluster - Provision**, the Traefik Service **EXTERNAL-IP** (or NodePort, if they use **`TRAEFIK_SERVICE_TYPE=NodePort`**) must match what DNS points to.
 
@@ -129,7 +128,7 @@ These bootstrap MariaDB via Helm. They should be **strong, unique** values; rota
 
 | Variable | When to set |
 |----------|-------------|
-| **`CLUSTER_NAME`** | If Terraform cluster name is not the default `vpc-demo-cluster`. |
+| **`CLUSTER_NAME`** | Magnum cluster name for Terraform (**Provision** / **Destroy**) and for **`openstack coe cluster config`** in other workflows. Default `vpc-demo-cluster` if unset. Customer must set **before** first provision; must match the name actually created in Magnum. |
 | **`EXISTING_ROUTER_ID`** | External network has no free gateway IPs; reuse a router that already has a gateway. |
 | **`EXISTING_NETWORK_ID`** | Skip creating `vpc-demo-net`; use an existing Neutron network UUID. |
 | **`NETWORK_NAME_SUFFIX`** | Avoid Neutron name collisions. |

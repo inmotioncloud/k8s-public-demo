@@ -19,7 +19,7 @@ This repository shows how to use **GitHub Actions** with **OpenStack** to provis
    - Scenario **site-deploy** before **Site - Deploy** or **Scaling - Burst Up**.
    - Scenario **core** for other workflows (Headlamp, Traefik dashboard toggle, burst teardown, etc.).  
    Fix any reported errors, then re-run.
-5. Run **Cluster - Provision** (long-running: cluster create, nodes ready, Traefik install). When it finishes, note the Traefik **EXTERNAL-IP** (or NodePorts if using NodePort).
+5. Run **Cluster - Provision** (long-running: cluster create, nodes ready, Traefik install). When it finishes, find the address in the Actions log: open the **`provision`** job, then the step **Show Traefik service (get LB VIP or NodePorts)** — that step prints `kubectl get svc -n traefik traefik`, where **EXTERNAL-IP** is the load balancer VIP (or **NodePorts** if you set **`TRAEFIK_SERVICE_TYPE=NodePort`**).
 6. Point DNS at Traefik as described in [DNS](#dns).
 7. Run **Site - Deploy** with a `site_id` and `app_type` (`wordpress` or `drupal`).
 
@@ -93,7 +93,7 @@ Do **not** leave these empty: blank secrets override chart defaults and break Ma
 
 | Name | Default / notes |
 |------|-----------------|
-| `CLUSTER_NAME` | `vpc-demo-cluster` |
+| `CLUSTER_NAME` | Magnum cluster name; default **`vpc-demo-cluster`**. Passed to Terraform on **Cluster - Provision** and **Cluster - Destroy** and used by **Site - Deploy** for `openstack coe cluster config`. Set **before** the first provision; changing it later without re-provisioning leaves the old name in OpenStack. |
 | `CLUSTER_TEMPLATE_NAME` | `kubernetes-v1.26.8-rancher1` (must exist in your cloud; image visible in Glance) |
 | `CLUSTER_AUTOSCALING_ENABLED` | `true` |
 | `DEMO_DOMAIN_BASE` | `k8sdemo.example.com` in chart defaults; set to **your** DNS apex |
@@ -131,7 +131,15 @@ After provision, point DNS at the Traefik Service address from:
 
 `kubectl get svc -n traefik traefik`
 
-Hostnames are **`{site_id}.{app_type}.{DEMO_DOMAIN_BASE}`** (example: `wp1.wordpress.k8sdemo.example.com`). You need wildcard coverage for **both** `*.wordpress.<apex>` and `*.drupal.<apex>` (or equivalent), not only `*.<apex>`.
+Sites use hostnames **`{site_id}.{app_type}.{DEMO_DOMAIN_BASE}`** — for example **`wp1.wordpress.k8sdemo.example.com`** or **`dp1.drupal.k8sdemo.example.com`**.
+
+You only need **one** wildcard under **`DEMO_DOMAIN_BASE`**, aimed at the Traefik **EXTERNAL-IP** (or a CNAME to it), for example:
+
+| Record | Type | Value |
+|--------|------|--------|
+| `*.k8sdemo.example.com` | A (or AAAA) | Traefik **EXTERNAL-IP** |
+
+Replace `k8sdemo.example.com` with your real **`DEMO_DOMAIN_BASE`**. The `*` matches subdomain names under that zone, so the same record covers multi-part names like `wp1.wordpress.k8sdemo.example.com` as well as `headlamp.k8sdemo.example.com` or `traefik.k8sdemo.example.com` when you use those workflows.
 
 ---
 
