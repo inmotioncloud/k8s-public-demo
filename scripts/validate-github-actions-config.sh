@@ -69,8 +69,9 @@ if [ "$SCENARIO" = "provision" ]; then
 
   require_nonempty "Variable TF_STATE_S3_BUCKET" "${TF_STATE_S3_BUCKET:-}"
   require_nonempty "Variable TF_STATE_S3_ENDPOINT" "${TF_STATE_S3_ENDPOINT:-}"
-  require_nonempty "Secret TF_STATE_S3_ACCESS_KEY_ID" "${TF_STATE_S3_ACCESS_KEY_ID:-}"
-  require_nonempty "Secret TF_STATE_S3_SECRET_ACCESS_KEY" "${TF_STATE_S3_SECRET_ACCESS_KEY:-}"
+  # Workflows map GitHub Secrets TF_STATE_S3_* → AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY (Terraform S3 backend).
+  require_nonempty "Secret TF_STATE_S3_ACCESS_KEY_ID (job env: AWS_ACCESS_KEY_ID)" "${AWS_ACCESS_KEY_ID:-}"
+  require_nonempty "Secret TF_STATE_S3_SECRET_ACCESS_KEY (job env: AWS_SECRET_ACCESS_KEY)" "${AWS_SECRET_ACCESS_KEY:-}"
 
   if [ -n "${TF_STATE_S3_ENDPOINT:-}" ] && [[ ! "${TF_STATE_S3_ENDPOINT}" =~ ^https?:// ]]; then
     err "TF_STATE_S3_ENDPOINT should start with http:// or https://"
